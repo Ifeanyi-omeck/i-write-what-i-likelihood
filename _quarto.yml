@@ -1,0 +1,27 @@
+
+project:
+  type: website
+
+website:
+  title: "I Write What I Likelihood"
+
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "About"
+        href: about.qmd
+
+    tools:
+      - icon: github
+        href: https://github.com/Ifeanyi-omeck
+        aria-label: GitHub
+
+      - icon: linkedin
+        href: https://www.linkedin.com/in/ifeanyi-anthony-omeife-432094182/
+        aria-label: LinkedIn
+
+format:
+  html:
+    theme: cosmo
+    toc: true

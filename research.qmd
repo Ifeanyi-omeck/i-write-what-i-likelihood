@@ -1,0 +1,22 @@
+
+---
+title: "Research Notes and Statistical Methods"
+subtitle: "Mathematical explorations, experiments, and independent investigations"
+---
+
+Welcome to my collection of research notes.
+
+Here, I explore statistical methods, derive mathematical ideas, experiment with models, and document what I discover along the way.
+My interests range from statistical inference and probability theory to machine learning and computational statistics.
+
+### Statistical Modelling
+
+###  Zero-Inflated Ordered Probit: When One Outcome Has Two Explanations
+
+Exploring latent data-generating processes, probability functions, maximum likelihood estimation, and marginal effects.
+[Read the full ZIOP investigation](posts/ziop.qmd)
+
+
+---
+
+*More investigations will appear here as the journal develops.*

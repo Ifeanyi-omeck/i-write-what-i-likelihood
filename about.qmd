@@ -1,0 +1,97 @@
+
+---
+title: "About"
+subtitle: "The person behind I Write What I Likelihood"
+---
+
+<style>
+main.content {
+  position: relative;
+}
+
+/* Profile picture on the left */
+.about-profile {
+  position: absolute;
+  top: 15px;
+  left: -220px;
+  width: 210px;
+  text-align: center;
+}
+
+.about-profile img {
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 18px;
+  display: block;
+  margin: 0 auto 15px;
+}
+
+/* LinkedIn and GitHub beneath the picture */
+.about-profile a {
+  display: inline-block;
+  margin: 3px;
+  padding: 6px 10px;
+  font-size: 13px;
+  text-decoration: none;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+}
+
+.about-profile a:hover {
+  background-color: #f1f1f1;
+}
+
+/* Mobile and smaller screens */
+@media (max-width: 1100px) {
+  .about-profile {
+    position: static;
+    width: 210px;
+    margin: 0 auto 30px;
+  }
+}
+</style>
+
+::: {.about-profile}
+
+![](images/journal_avatar.png){fig-alt="Illustrated profile portrait"}
+
+[LinkedIn](https://www.linkedin.com/in/ifeanyi-anthony-omeife-432094182/) [GitHub](https://github.com/Ifeanyi-omeck)
+
+:::
+
+## Hello, I'm Ifeanyi (E-FINE-YI).
+
+I'm a Data Scientist with a curiosity for statistics, mathematics, machine learning, and the questions that emerge when theory meets real-world data.
+
+I enjoy understanding not just how statistical methods work, but why they work, the assumptions they depend on, and what happens when those assumptions are challenged.
+
+## Why I Write
+
+*I Write What I Likelihood* is inspired by Steve Biko's *I Write What I Like*.
+
+The idea is simple: to have a space where I can explore whatever interests me intellectually.
+
+Sometimes that means deriving a likelihood function from first principles. Other times, it means experimenting with statistical models, reproducing an interesting result, or investigating something I don't fully understand.
+
+This journal is a record of that curiosity.
+
+## What You'll Find Here
+
+- Mathematical explorations and derivations.
+- Statistical modelling and inference.
+- Computational experiments and simulations.
+- Machine learning investigations.
+- Questions, discoveries, and occasional failed experiments.
+
+I don't expect every investigation to produce something new.
+
+Sometimes understanding something deeply is the discovery itself.
+
+## Elsewhere
+
+You can find some of my implementations and experiments on [GitHub](https://github.com/Ifeanyi-omeck).
+
+---
+
+*Curiosity first. Equations along the way.*
