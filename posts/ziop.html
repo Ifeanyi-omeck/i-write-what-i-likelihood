@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.20">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ifeanyi Omeife">
+<meta name="description" content="A mathematical exploration of zero-inflated ordered probit, with an empirical application to police-recorded single-vehicle injury collisions and an audit of likelihood-based model selection.">
+
+<title>When One Outcome Has Two Explanations – I Write What I Likelihood</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-17888a1159294d3eb470f19f6f52f5a5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">I Write What I Likelihood</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+    <a href="https://github.com/Ifeanyi-omeck" title="" class="quarto-navigation-tool px-1" aria-label="GitHub"><i class="bi bi-github"></i></a>
+    <a href="https://www.linkedin.com/in/ifeanyi-anthony-omeife-432094182/" title="" class="quarto-navigation-tool px-1" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-statistical-question-can-the-same-outcome-have-two-causes" id="toc-the-statistical-question-can-the-same-outcome-have-two-causes" class="nav-link active" data-scroll-target="#the-statistical-question-can-the-same-outcome-have-two-causes"><span class="header-section-number">1</span> The statistical question: can the same outcome have two causes?</a></li>
+  <li><a href="#starting-with-the-ordered-probit" id="toc-starting-with-the-ordered-probit" class="nav-link" data-scroll-target="#starting-with-the-ordered-probit"><span class="header-section-number">2</span> Starting with the ordered probit</a></li>
+  <li><a href="#adding-a-latent-process-ziop-from-first-principles" id="toc-adding-a-latent-process-ziop-from-first-principles" class="nav-link" data-scroll-target="#adding-a-latent-process-ziop-from-first-principles"><span class="header-section-number">3</span> Adding a latent process: ZIOP from first principles</a>
+  <ul class="collapse">
+  <li><a href="#the-binary-probit-which-state-generates-the-observation" id="toc-the-binary-probit-which-state-generates-the-observation" class="nav-link" data-scroll-target="#the-binary-probit-which-state-generates-the-observation"><span class="header-section-number">3.1</span> The binary probit: which state generates the observation?</a></li>
+  <li><a href="#combining-the-processes-the-synthesis-equation" id="toc-combining-the-processes-the-synthesis-equation" class="nav-link" data-scroll-target="#combining-the-processes-the-synthesis-equation"><span class="header-section-number">3.2</span> Combining the processes: the synthesis equation</a></li>
+  <li><a href="#deriving-the-observed-probabilities" id="toc-deriving-the-observed-probabilities" class="nav-link" data-scroll-target="#deriving-the-observed-probabilities"><span class="header-section-number">3.3</span> Deriving the observed probabilities</a></li>
+  <li><a href="#connecting-our-notation-to-harris-and-zhaos-equation-7" id="toc-connecting-our-notation-to-harris-and-zhaos-equation-7" class="nav-link" data-scroll-target="#connecting-our-notation-to-harris-and-zhaos-equation-7"><span class="header-section-number">3.4</span> Connecting our notation to Harris and Zhao’s Equation (7)</a></li>
+  <li><a href="#can-we-identify-the-source-of-an-observed-slight-injury" id="toc-can-we-identify-the-source-of-an-observed-slight-injury" class="nav-link" data-scroll-target="#can-we-identify-the-source-of-an-observed-slight-injury"><span class="header-section-number">3.5</span> Can we identify the source of an observed slight injury?</a></li>
+  <li><a href="#maximum-likelihood-estimation" id="toc-maximum-likelihood-estimation" class="nav-link" data-scroll-target="#maximum-likelihood-estimation"><span class="header-section-number">3.6</span> Maximum likelihood estimation</a></li>
+  <li><a href="#marginal-effects" id="toc-marginal-effects" class="nav-link" data-scroll-target="#marginal-effects"><span class="header-section-number">3.7</span> Marginal effects</a></li>
+  </ul></li>
+  <li><a href="#putting-the-model-to-work-collision-injury-severity" id="toc-putting-the-model-to-work-collision-injury-severity" class="nav-link" data-scroll-target="#putting-the-model-to-work-collision-injury-severity"><span class="header-section-number">4</span> Putting the model to work: collision injury severity</a>
+  <ul class="collapse">
+  <li><a href="#building-the-analytical-sample-from-stats19" id="toc-building-the-analytical-sample-from-stats19" class="nav-link" data-scroll-target="#building-the-analytical-sample-from-stats19"><span class="header-section-number">4.1</span> Building the analytical sample from STATS19</a></li>
+  <li><a href="#why-an-inflated-category-was-plausible" id="toc-why-an-inflated-category-was-plausible" class="nav-link" data-scroll-target="#why-an-inflated-category-was-plausible"><span class="header-section-number">4.2</span> Why an inflated category was plausible</a></li>
+  <li><a href="#lighting-as-the-empirical-comparison" id="toc-lighting-as-the-empirical-comparison" class="nav-link" data-scroll-target="#lighting-as-the-empirical-comparison"><span class="header-section-number">4.3</span> Lighting as the empirical comparison</a></li>
+  <li><a href="#estimation-and-model-comparison-workflow" id="toc-estimation-and-model-comparison-workflow" class="nav-link" data-scroll-target="#estimation-and-model-comparison-workflow"><span class="header-section-number">4.4</span> Estimation and model-comparison workflow</a></li>
+  </ul></li>
+  <li><a href="#what-did-the-models-find" id="toc-what-did-the-models-find" class="nav-link" data-scroll-target="#what-did-the-models-find"><span class="header-section-number">5</span> What did the models find?</a>
+  <ul class="collapse">
+  <li><a href="#likelihood-and-information-criteria-across-lighting-conditions" id="toc-likelihood-and-information-criteria-across-lighting-conditions" class="nav-link" data-scroll-target="#likelihood-and-information-criteria-across-lighting-conditions"><span class="header-section-number">5.1</span> Likelihood and information criteria across lighting conditions</a></li>
+  <li><a href="#what-changed-across-lighting-conditions" id="toc-what-changed-across-lighting-conditions" class="nav-link" data-scroll-target="#what-changed-across-lighting-conditions"><span class="header-section-number">5.2</span> What changed across lighting conditions?</a></li>
+  <li><a href="#translating-coefficients-into-marginal-effects" id="toc-translating-coefficients-into-marginal-effects" class="nav-link" data-scroll-target="#translating-coefficients-into-marginal-effects"><span class="header-section-number">5.3</span> Translating coefficients into marginal effects</a></li>
+  <li><a href="#how-much-should-we-trust-the-vuong-comparison" id="toc-how-much-should-we-trust-the-vuong-comparison" class="nav-link" data-scroll-target="#how-much-should-we-trust-the-vuong-comparison"><span class="header-section-number">5.4</span> How much should we trust the Vuong comparison?</a></li>
+  <li><a href="#what-can-and-cannot-be-concluded" id="toc-what-can-and-cannot-be-concluded" class="nav-link" data-scroll-target="#what-can-and-cannot-be-concluded"><span class="header-section-number">5.5</span> What can and cannot be concluded?</a></li>
+  </ul></li>
+  <li><a href="#closing-reflection" id="toc-closing-reflection" class="nav-link" data-scroll-target="#closing-reflection"><span class="header-section-number">6</span> Closing reflection</a></li>
+  <li><a href="#sources-code-and-reproducibility" id="toc-sources-code-and-reproducibility" class="nav-link" data-scroll-target="#sources-code-and-reproducibility"><span class="header-section-number">7</span> Sources, code, and reproducibility</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">When One Outcome Has Two Explanations</h1>
+<p class="subtitle lead">Zero-inflated ordered probit, latent injury processes, and evidence from road collisions</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">Statistical Modelling</div>
+    <div class="quarto-category">Ordinal Regression</div>
+    <div class="quarto-category">Latent Variables</div>
+    <div class="quarto-category">Maximum Likelihood</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A mathematical exploration of zero-inflated ordered probit, with an empirical application to police-recorded single-vehicle injury collisions and an audit of likelihood-based model selection.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ifeanyi Omeife </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><em>An observed outcome tells us what happened. It does not necessarily tell us which process generated it.</em></p>
+<p>A common modelling instinct is to take the distribution of an observed response at face value. If a category appears unusually often, perhaps it is simply the most likely outcome of a single process. But there is another possibility: the same observed category might arise from <strong>different unobserved mechanisms</strong>. The distinction matters because those mechanisms could respond differently to the same explanatory variables.</p>
+<p>I want to understand how to model that possibility for <strong>ordered outcomes</strong>. I will start with a conventional ordered probit, introduce the zero-inflated ordered probit (ZIOP) as a two-process extension, derive its likelihood, and then take the model into a substantive application: injury severity in police-recorded single-vehicle collisions in Great Britain.</p>
+<p>The empirical results in Sections 4–5 come from an earlier analysis of STATS19 injury-collision records (2016–2021). I have condensed the reported results and extracted the original figures. <strong>The model has not been re-estimated for this article</strong>, and I distinguish the original estimates from the theoretical derivations and methodological reflections added here.</p>
+<section id="the-statistical-question-can-the-same-outcome-have-two-causes" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="the-statistical-question-can-the-same-outcome-have-two-causes"><span class="header-section-number">1</span> The statistical question: can the same outcome have two causes?</h2>
+<p>Imagine measuring customer activity in ordered categories: no activity, low activity, moderate activity and high activity. Many customers appear in the first category. One explanation is that the ordered activity process simply places a lot of mass at its lower end. Another is that some customers are effectively unable or unwilling to participate at all, while others could participate but happened not to in the observation window.</p>
+<p>Both mechanisms generate the same recorded <strong>zero</strong>, but one represents a distinct state and the other is an ordinary outcome of a variable activity process.</p>
+<p>This is the intuition behind a zero-inflated model. The word <em>zero</em> is a coding convention: it denotes the category to which the extra probability mass is assigned. It need not mean the literal absence of an event or a numerical count of zero. For an <strong>ordinal</strong> response, the important question is whether there is reason to add an inflated state to the usual ordered-outcome mechanism.</p>
+<p>There is a crucial qualification: <strong>observing a high frequency of the lowest category is not proof of a mixture</strong>. A conventional ordered probit can also assign high probabilities to that category. The two-process model is a hypothesis that must earn its additional complexity through estimation, diagnostics and appropriate comparisons.</p>
+</section>
+<section id="starting-with-the-ordered-probit" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="starting-with-the-ordered-probit"><span class="header-section-number">2</span> Starting with the ordered probit</h2>
+<p>Let an ordinal response take three values,</p>
+<p><span class="math display">\[
+Y_i\in\{0,1,2\},
+\]</span></p>
+<p>where increasing values represent increasing severity or intensity. The ordered probit posits an unobserved continuous latent variable,</p>
+<p><span class="math display">\[
+Y_i^*=x_i^\top\beta+\varepsilon_i, \qquad \varepsilon_i\sim N(0,1).
+\]</span></p>
+<p>Here <span class="math inline">\(i\)</span> identifies a collision, <span class="math inline">\(x_i\)</span> is its vector of observed characteristics, <span class="math inline">\(\beta\)</span> is the corresponding coefficient vector, and <span class="math inline">\(\varepsilon_i\)</span> is an unobserved disturbance assumed to follow the standard normal distribution. The latent index <span class="math inline">\(Y_i^*\)</span> is <strong>unobserved because STATS19 records an injury category, not an exact continuous severity propensity</strong>. This is distinct from the fact that <span class="math inline">\(\beta\)</span> and the threshold parameters must be estimated. The normality assumption gives us a way to calculate probabilities; it is not what makes the severity propensity unobserved. Two ordered thresholds <span class="math inline">\(\kappa_0&lt;\kappa_1\)</span> connect the latent index to the recorded categories:</p>
+<p><span class="math display">\[
+Y_i=\begin{cases}
+0 &amp; \text{if } Y_i^*\leq\kappa_0,\\
+1 &amp; \text{if } \kappa_0&lt;Y_i^*\leq\kappa_1,\\
+2 &amp; \text{if }Y_i^*&gt;\kappa_1.
+\end{cases}
+\]</span></p>
+<p>Write <span class="math inline">\(\eta_i=x_i^\top\beta\)</span> for the fitted latent index (excluding the disturbance) and <span class="math inline">\(\Phi\)</span> for the standard normal cumulative distribution function (CDF). Denote by <span class="math inline">\(q_{ij}\)</span> the ordered-probit probability of category <span class="math inline">\(j\in\{0,1,2\}\)</span> for collision <span class="math inline">\(i\)</span>. For example, the middle category corresponds to <span class="math inline">\(\kappa_0&lt;Y_i^*\leq\kappa_1\)</span>; therefore its probability is the upper normal CDF minus the lower normal CDF. The three probabilities are</p>
+<p><span class="math display">\[
+\begin{aligned}
+q_{i0}&amp;=\Phi(\kappa_0-\eta_i),\\
+q_{i1}&amp;=\Phi(\kappa_1-\eta_i)-\Phi(\kappa_0-\eta_i),\\
+q_{i2}&amp;=1-\Phi(\kappa_1-\eta_i).
+\end{aligned}
+\]</span></p>
+<p>The middle-category probability is the normal CDF at the <strong>upper</strong> threshold minus the CDF at the <strong>lower</strong> threshold. This follows directly from asking how much probability lies between the two boundaries; reversing the subtraction would incorrectly produce a negative probability.</p>
+<p>The probabilities are nonnegative and sum to one. The variance of <span class="math inline">\(\varepsilon_i\)</span> is normalised to one to identify the probit scale; the location also requires a normalisation, typically by omitting a free intercept from the latent severity equation if both thresholds are estimated.</p>
+<p>A positive coefficient in <span class="math inline">\(\beta\)</span> shifts the <strong>latent severity index</strong>, not an observed probability directly. It generally lowers <span class="math inline">\(q_{i0}\)</span> and raises <span class="math inline">\(q_{i2}\)</span>, but its effect on the middle category depends on where the thresholds lie. Hence a coefficient’s sign is not a substitute for calculating category-specific marginal effects.</p>
+<p>The one-process assumption is apparent here: the same ordered latent mechanism is responsible for <strong>all three</strong> categories. What if part of category zero comes from an additional state?</p>
+</section>
+<section id="adding-a-latent-process-ziop-from-first-principles" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="adding-a-latent-process-ziop-from-first-principles"><span class="header-section-number">3</span> Adding a latent process: ZIOP from first principles</h2>
+<p>The zero-inflated ordered probit model of Harris and Zhao (2007) combines a binary <strong>state-selection</strong> process with an ordered-probit <strong>severity</strong> process. I will use <strong>one state indicator</strong>, <span class="math inline">\(g_i\)</span>, throughout:</p>
+<ul>
+<li><span class="math inline">\(g_i=0\)</span>: the <strong>inflated minor-injury state</strong>. The observed response is always <span class="math inline">\(Y_i=0\)</span> (slight injury).</li>
+<li><span class="math inline">\(g_i=1\)</span>: the <strong>ordered state</strong>. The ordered process can generate <span class="math inline">\(Y_i=0,1,2\)</span> (slight, serious, or fatal injury).</li>
+</ul>
+<p>This is the same coding as Harris and Zhao’s participation indicator <span class="math inline">\(r_i\)</span>: <span class="math inline">\(r_i=0\)</span> for their always-zero state and <span class="math inline">\(r_i=1\)</span> for their ordered-response state. Their paper uses <strong>different letters for the two linear predictors</strong>; an explicit correspondence appears below. A <em>minor-injury state</em> is a modelled latent mechanism, not a synonym for every collision actually recorded as slight. A collision can enter the ordered state and still be observed with slight injury.</p>
+<!-- CORRECTION 1: One state coding throughout, matching Harris and Zhao's r=0/1. -->
+<section id="the-binary-probit-which-state-generates-the-observation" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="the-binary-probit-which-state-generates-the-observation"><span class="header-section-number">3.1</span> The binary probit: which state generates the observation?</h3>
+<p>Let <span class="math inline">\(z_i\)</span> be the vector of characteristics used to model state membership, <span class="math inline">\(\gamma\)</span> its coefficient vector, and <span class="math inline">\(u_i\)</span> a standard-normal disturbance. Define an unobserved state propensity <span class="math inline">\(g_i^*\)</span> and the latent-state indicator <span class="math inline">\(g_i\)</span> as follows:</p>
+<p><span class="math display">\[
+g_i^*=z_i^\top\gamma+u_i,\qquad u_i\sim N(0,1),\qquad
+g_i=\mathbf{1}(g_i^*&gt;0).
+\]</span></p>
+<p>The state itself is latent: <span class="math inline">\(g_i\)</span> is not recorded in STATS19. The indicator is a modelling device for which process generates the observed outcome. Writing <span class="math inline">\(p_i\)</span> for the probability of the ordered state gives</p>
+<p><span class="math display">\[
+p_i=P(g_i=1\mid z_i)=\Phi(z_i^\top\gamma).
+\]</span></p>
+<p>Consequently, <span class="math inline">\(P(g_i=0\mid z_i)=1-p_i=1-\Phi(z_i^\top\gamma)\)</span> is the inflated-state probability. Here <span class="math inline">\(z_i\)</span> and <span class="math inline">\(\gamma\)</span> belong <strong>only to the binary state equation</strong>; the <span class="math inline">\(x_i\)</span> and <span class="math inline">\(\beta\)</span> defined in Section 2 belong to the ordered-severity equation. The two predictor sets may overlap, but they need not be identical.</p>
+</section>
+<section id="combining-the-processes-the-synthesis-equation" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="combining-the-processes-the-synthesis-equation"><span class="header-section-number">3.2</span> Combining the processes: the synthesis equation</h3>
+<p>Following Equation (6) of Harris and Zhao (2007), the two states are connected to the observed outcome through multiplication. Let <span class="math inline">\(\widetilde{Y}_i\in\{0,1,2\}\)</span> denote the <strong>categorical</strong> injury outcome generated by the ordered-probit mechanism. It is distinct from the <strong>continuous</strong> latent index <span class="math inline">\(Y_i^*\)</span> introduced in Section 2. The observed ZIOP response is</p>
+<p><span class="math display">\[
+Y_i=g_i\widetilde{Y}_i.
+\]</span></p>
+</section>
+<section id="deriving-the-observed-probabilities" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="deriving-the-observed-probabilities"><span class="header-section-number">3.3</span> Deriving the observed probabilities</h3>
+<p>Having established the synthesis equation,</p>
+<p><span class="math display">\[
+Y_i=g_i\widetilde{Y}_i,
+\]</span></p>
+<p>we can now derive the probability of observing each injury-severity category.</p>
+<p>Recall that <span class="math inline">\(g_i\)</span> is the binary indicator determining which latent process generates the observed injury outcome:</p>
+<ul>
+<li><span class="math inline">\(g_i=0\)</span> represents the inflated minor-injury state, which always produces <span class="math inline">\(Y_i=0\)</span>.</li>
+<li><span class="math inline">\(g_i=1\)</span> represents the ordered state, which can produce <span class="math inline">\(Y_i=0,1,2\)</span>.</li>
+</ul>
+<p>The ordered outcome <span class="math inline">\(\widetilde{Y}_i\)</span> is generated by the ordered probit process.</p>
+<p><strong>Let us denote</strong> the probability of entering the ordered state as <span class="math inline">\(p_i\)</span>, expressed as</p>
+<p><span class="math display">\[
+p_i=P(g_i=1\mid z_i)=\Phi(z_i^\top\gamma),
+\]</span></p>
+<p>where <span class="math inline">\(z_i\)</span> is the vector of explanatory variables in the binary probit equation, <span class="math inline">\(\gamma\)</span> is the corresponding vector of coefficients, and <span class="math inline">\(\Phi\)</span> denotes the cumulative distribution function of the standard normal distribution.</p>
+<p>Consequently, the probability of belonging to the inflated state is</p>
+<p><span class="math display">\[
+P(g_i=0\mid z_i)=1-p_i.
+\]</span></p>
+<p>Next, <strong>let us denote</strong> the conditional probability of observing injury category <span class="math inline">\(j\)</span> within the ordered state as <span class="math inline">\(q_{ij}\)</span>:</p>
+<p><span class="math display">\[
+q_{ij}
+=
+P(\widetilde{Y}_i=j\mid g_i=1,x_i),
+\qquad j\in\{0,1,2\},
+\]</span></p>
+<p>where <span class="math inline">\(x_i\)</span> represents the explanatory variables in the ordered probit equation.</p>
+<p>For the lowest injury category, this conditional probability becomes</p>
+<p><span class="math display">\[
+q_{i0}
+=
+P(\widetilde{Y}_i=0\mid g_i=1,x_i)
+=
+\Phi(\kappa_0-x_i^\top\beta),
+\]</span></p>
+<p>where <span class="math inline">\(\kappa_0\)</span> is the first ordered threshold and <span class="math inline">\(\beta\)</span> is the coefficient vector of the ordered probit equation.</p>
+<p>Under the assumption that the disturbances in the binary and ordered processes are independent, the observed probability of a slight injury can now be derived.</p>
+<p><strong>A slight injury can arise from two distinct latent processes:</strong></p>
+<ol type="1">
+<li>The collision belongs to the inflated minor-injury state (<span class="math inline">\(g_i=0\)</span>).</li>
+<li>The collision belongs to the ordered state (<span class="math inline">\(g_i=1\)</span>), but the ordered process generates a slight injury (<span class="math inline">\(\widetilde{Y}_i=0\)</span>).</li>
+</ol>
+<p>Since these two events are mutually exclusive, the law of total probability gives</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(Y_i=0\mid x_i,z_i)
+&amp;=P(g_i=0\mid z_i)\\
+&amp;\quad+P(g_i=1\mid z_i)
+P(\widetilde{Y}_i=0\mid g_i=1,x_i)\\
+&amp;=(1-p_i)+p_iq_{i0}.
+\end{aligned}
+\]</span></p>
+<p>The expression contains two components:</p>
+<ul>
+<li><span class="math inline">\((1-p_i)\)</span> represents the probability of entering the inflated minor-injury state.</li>
+<li><span class="math inline">\(p_iq_{i0}\)</span> represents the probability of entering the ordered state and generating a slight injury within that state.</li>
+</ul>
+<p>Substituting the definitions of <span class="math inline">\(p_i\)</span> and <span class="math inline">\(q_{i0}\)</span> gives the expanded probability equation:</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(Y_i=0\mid x_i,z_i)
+&amp;=[1-\Phi(z_i^\top\gamma)]\\
+&amp;\quad+\Phi(z_i^\top\gamma)
+\Phi(\kappa_0-x_i^\top\beta).
+\end{aligned}
+\]</span></p>
+<p>For higher injury-severity categories, the inflated state cannot generate the observed outcome. Therefore, serious and fatal injuries must originate from the ordered process.</p>
+<p>The probability of observing injury category <span class="math inline">\(j&gt;0\)</span> is</p>
+<p><span class="math display">\[
+P(Y_i=j\mid x_i,z_i)
+=
+p_iq_{ij},
+\qquad j\in\{1,2\}.
+\]</span></p>
+<p>Using the ordered probit probabilities derived earlier, <strong>let us denote</strong> the overall probability of observing injury category <span class="math inline">\(j\)</span> as</p>
+<p><span class="math display">\[
+P_{ij}=P(Y_i=j\mid x_i,z_i).
+\]</span></p>
+<p>The complete ZIOP probability specification is therefore</p>
+<p><span class="math display">\[
+\boxed{
+\begin{aligned}
+P_{i0}
+&amp;=(1-p_i)+p_i\Phi(\kappa_0-\eta_i),\\
+P_{i1}
+&amp;=p_i[\Phi(\kappa_1-\eta_i)-\Phi(\kappa_0-\eta_i)],\\
+P_{i2}
+&amp;=p_i[1-\Phi(\kappa_1-\eta_i)].
+\end{aligned}
+}
+\]</span></p>
+<p>Here <span class="math inline">\(\eta_i=x_i^\top\beta\)</span> represents the ordered-probit linear predictor, while <span class="math inline">\(\kappa_0\)</span> and <span class="math inline">\(\kappa_1\)</span> are the ordered thresholds, with <span class="math inline">\(\kappa_0&lt;\kappa_1\)</span>.</p>
+<p>Notice that the probabilities satisfy</p>
+<p><span class="math display">\[
+P_{i0}+P_{i1}+P_{i2}=1.
+\]</span></p>
+<p>This follows because the ordered-probit probabilities sum to one:</p>
+<p><span class="math display">\[
+q_{i0}+q_{i1}+q_{i2}=1,
+\]</span></p>
+<p>and the two latent-state probabilities satisfy</p>
+<p><span class="math display">\[
+(1-p_i)+p_i=1.
+\]</span></p>
+<p>The resulting specification captures the defining characteristic of the Zero-Inflated Ordered Probit model: <strong>the lowest observed injury category can originate from two latent processes, whereas the higher injury categories can only originate from the ordered process.</strong></p>
+</section>
+<section id="connecting-our-notation-to-harris-and-zhaos-equation-7" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="connecting-our-notation-to-harris-and-zhaos-equation-7"><span class="header-section-number">3.4</span> Connecting our notation to Harris and Zhao’s Equation (7)</h3>
+<p>The source of the apparent difference is that Harris and Zhao use <span class="math inline">\(x^\top\beta\)</span> for the <strong>binary state</strong> predictor and <span class="math inline">\(z^\top\gamma\)</span> for the <strong>ordered severity</strong> predictor. In this article those letter assignments are reversed. To avoid using the same symbols for two different roles, the subscript <span class="math inline">\(H\)</span> below means <em>the notation used by Harris and Zhao</em>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">This article</th>
+<th style="text-align: left;">Harris and Zhao (2007)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">State indicator</td>
+<td style="text-align: left;"><span class="math inline">\(g_i\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(r_i\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Binary-state linear predictor</td>
+<td style="text-align: left;"><span class="math inline">\(z_i^\top\gamma\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(x_H^\top\beta_H\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ordered-severity linear predictor</td>
+<td style="text-align: left;"><span class="math inline">\(x_i^\top\beta=\eta_i\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(z_H^\top\gamma_H\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">First ordered threshold</td>
+<td style="text-align: left;"><span class="math inline">\(\kappa_0\)</span></td>
+<td style="text-align: left;">Fixed at <span class="math inline">\(0\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Next ordered threshold</td>
+<td style="text-align: left;"><span class="math inline">\(\kappa_1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\mu_1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>In the original paper’s threshold normalization, the ordered-state probability of the lowest category is <span class="math inline">\(\Phi(-z_H^\top\gamma_H)\)</span>; it is therefore equivalent to our <span class="math inline">\(\Phi(\kappa_0-x_i^\top\beta)\)</span> after accounting for the chosen latent-index location normalization. Similarly, the binary-state probability <span class="math inline">\(\Phi(x_H^\top\beta_H)\)</span> corresponds to our <span class="math inline">\(p_i=\Phi(z_i^\top\gamma)\)</span>.</p>
+<p>Using <strong>only Harris and Zhao’s notation</strong> (identified by <span class="math inline">\(H\)</span>), their three-category version of Equation (7) reads</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(Y_i=0)&amp;=[1-\Phi(x_H^\top\beta_H)]
++\Phi(x_H^\top\beta_H)\Phi(-z_H^\top\gamma_H),\\
+P(Y_i=1)&amp;=\Phi(x_H^\top\beta_H)
+[\Phi(\mu_1-z_H^\top\gamma_H)-\Phi(-z_H^\top\gamma_H)],\\
+P(Y_i=2)&amp;=\Phi(x_H^\top\beta_H)
+[1-\Phi(\mu_1-z_H^\top\gamma_H)].
+\end{aligned}
+\]</span></p>
+<p>The original paper fixes its first ordered threshold at zero. Our article instead estimates <span class="math inline">\(\kappa_0\)</span> and <span class="math inline">\(\kappa_1\)</span>, while excluding a separate free intercept from the ordered latent equation. These are different <strong>location normalizations</strong>, not different assumptions about the two-state mechanism. Thus the expressions correspond under a consistent reparameterization; we should not substitute <span class="math inline">\(\Phi(x^\top\beta)\)</span> for our <span class="math inline">\(p_i\)</span> without explicitly identifying which paper’s <span class="math inline">\(x\)</span> and <span class="math inline">\(\beta\)</span> are intended.</p>
+</section>
+<section id="can-we-identify-the-source-of-an-observed-slight-injury" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="can-we-identify-the-source-of-an-observed-slight-injury"><span class="header-section-number">3.5</span> Can we identify the source of an observed slight injury?</h3>
+<p>Even after observing <span class="math inline">\(Y_i=0\)</span>, its latent source remains unknown. By Bayes’ rule, the fitted model assigns the following <strong>posterior probability</strong> that the zero came from the inflated state:</p>
+<p><span class="math display">\[
+P(g_i=0\mid Y_i=0,x_i,z_i)
+=\frac{1-p_i}{(1-p_i)+p_iq_{i0}}.
+\]</span></p>
+<p>This is a <strong>model-dependent estimate</strong> of state membership, not external verification of what physically caused a particular collision.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="What about correlated disturbances?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What about correlated disturbances?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The derivations above set <span class="math inline">\(\operatorname{Corr}(u_i,\varepsilon_i)=\rho=0\)</span>, corresponding to the independent-error specification discussed in the empirical research. If <span class="math inline">\(\rho\ne0\)</span>, evaluating the joint state/severity events requires bivariate-normal probabilities rather than the simple products <span class="math inline">\(p_iq_{ij}\)</span>. The standard ordered-category thresholds and latent processes remain conceptually relevant, but the probability expressions must change.</p>
+</div>
+</div>
+<!-- CORRECTION 4: The remaining likelihood and marginal-effect formulas are unchanged and use the definitions above. -->
+</section>
+<section id="maximum-likelihood-estimation" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="maximum-likelihood-estimation"><span class="header-section-number">3.6</span> Maximum likelihood estimation</h3>
+<p>Define <span class="math inline">\(d_{ij}=\mathbf{1}(Y_i=j)\)</span> and let <span class="math inline">\(\theta\)</span> denote the coefficients and ordered thresholds. Assuming independent observations, the log-likelihood is</p>
+<p><span class="math display">\[
+\boxed{\ell(\theta)=\sum_{i=1}^n\sum_{j=0}^2 d_{ij}\log P_{ij}(\theta).}
+\]</span></p>
+<p>An estimator chooses parameters to maximise <span class="math inline">\(\ell(\theta)\)</span> subject to the threshold-ordering and identification constraints. Numerical optimisation is usually necessary; one may enforce <span class="math inline">\(\kappa_1&gt;\kappa_0\)</span> by parameterising <span class="math inline">\(\kappa_1=\kappa_0+\exp(\delta)\)</span>.</p>
+<p>Here is the computational skeleton of the independent-error likelihood. It shows what is estimated; <strong>it is not a claim that the original 2016–2021 dataset has been refitted here</strong>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inputs: y coded 0/1/2; X = ordered equation matrix (no free intercept),</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Z = splitting-equation matrix; rows correspond to the same observations.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ziop_negloglik <span class="ot">&lt;-</span> <span class="cf">function</span>(par, X, Z, y) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  kx <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  kz <span class="ot">&lt;-</span> <span class="fu">ncol</span>(Z)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> par[<span class="fu">seq_len</span>(kx)]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  gamma <span class="ot">&lt;-</span> par[kx <span class="sc">+</span> <span class="fu">seq_len</span>(kz)]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  k0 <span class="ot">&lt;-</span> par[kx <span class="sc">+</span> kz <span class="sc">+</span> <span class="dv">1</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  k1 <span class="ot">&lt;-</span> k0 <span class="sc">+</span> <span class="fu">exp</span>(par[kx <span class="sc">+</span> kz <span class="sc">+</span> <span class="dv">2</span>])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  eta <span class="ot">&lt;-</span> <span class="fu">drop</span>(X <span class="sc">%*%</span> beta)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  p_order <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(<span class="fu">drop</span>(Z <span class="sc">%*%</span> gamma))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  q0 <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(k0 <span class="sc">-</span> eta)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  q1 <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(k1 <span class="sc">-</span> eta) <span class="sc">-</span> q0</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  q2 <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(k1 <span class="sc">-</span> eta)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span> <span class="sc">-</span> p_order <span class="sc">+</span> p_order<span class="sc">*</span>q0,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>             p_order<span class="sc">*</span>q1,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>             p_order<span class="sc">*</span>q2)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  selected <span class="ot">&lt;-</span> P[<span class="fu">cbind</span>(<span class="fu">seq_along</span>(y), y <span class="sc">+</span> <span class="dv">1</span>L)]</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="fu">sum</span>(<span class="fu">log</span>(<span class="fu">pmax</span>(selected, <span class="fl">1e-12</span>)))</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Example usage after creating X, Z, and y:</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># start &lt;- rep(0, ncol(X) + ncol(Z) + 2)</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># fit &lt;- optim(start, ziop_negloglik, X=X, Z=Z, y=y,</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">#              method="BFGS", control=list(maxit=5000))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is deliberately a small educational likelihood function. A full implementation must verify convergence, identification, numerical accuracy of tail probabilities, standard-error calculations and sensitivity to starting values.</p>
+</section>
+<section id="marginal-effects" class="level3" data-number="3.7">
+<h3 data-number="3.7" class="anchored" data-anchor-id="marginal-effects"><span class="header-section-number">3.7</span> Marginal effects</h3>
+<p>Marginal effects provide a means of understanding how changes in explanatory variables influence the predicted probability of a particular injury-severity outcome, holding other variables constant.</p>
+<p>In the Zero-Inflated Ordered Probit (ZIOP) model, marginal effects can be examined through two components: the binary probit process and the ordered probit process.</p>
+<p>The <strong>binary probit marginal effect</strong> measures how a change in an explanatory variable influences the probability of belonging to a particular latent injury state.</p>
+<p>Recall that the probability of entering the ordered state is</p>
+<p><span class="math display">\[
+p_i=P(g_i=1\mid z_i)=\Phi(z_i^\top\gamma).
+\]</span></p>
+<p>For a continuous explanatory variable <span class="math inline">\(t\)</span>, the marginal effect of entering the ordered state is expressed as</p>
+<p><span class="math display">\[
+ME_{P(g_i=1)}
+=
+\frac{\partial P(g_i=1\mid z_i)}{\partial t}
+=
+\phi(z_i^\top\gamma)\gamma_t.
+\]</span></p>
+<p>Here, <span class="math inline">\(\phi\)</span> represents the probability density function of the standard normal distribution, <span class="math inline">\(z_i\)</span> represents the explanatory variables in the binary probit process, and <span class="math inline">\(\gamma_t\)</span> is the coefficient associated with the continuous explanatory variable <span class="math inline">\(t\)</span>.</p>
+<p>Since the probability of belonging to the inflated state is <span class="math inline">\(P(g_i=0\mid z_i)=1-p_i\)</span>, its corresponding marginal effect is</p>
+<p><span class="math display">\[
+ME_{P(g_i=0)}
+=
+\frac{\partial P(g_i=0\mid z_i)}{\partial t}
+=
+-\phi(z_i^\top\gamma)\gamma_t.
+\]</span></p>
+<p>The <strong>ordered probit marginal effect</strong> measures how a change in an explanatory variable influences the probability of each ordered injury category, such as slight, serious or fatal injury.</p>
+<p>Recall that the ordered probit process is defined by the linear predictor <span class="math inline">\(\eta_i=x_i^\top\beta\)</span>, where <span class="math inline">\(x_i\)</span> represents the explanatory variables and <span class="math inline">\(\beta\)</span> denotes their associated coefficients.</p>
+<p>Let <span class="math inline">\(q_{ij}\)</span> represent the conditional probability of observing injury category <span class="math inline">\(j\)</span> within the ordered state.</p>
+<p>For the ordered model, the marginal effect of a continuous explanatory variable <span class="math inline">\(t\)</span> is expressed as</p>
+<p><span class="math display">\[
+ME_{q_{ij}}
+=
+\frac{\partial q_{ij}}{\partial t}
+=
+\left[
+\phi(\kappa_{j-1}-\eta_i)
+-
+\phi(\kappa_j-\eta_i)
+\right]\beta_t.
+\]</span></p>
+<p>Here, <span class="math inline">\(\kappa_{j-1}\)</span> and <span class="math inline">\(\kappa_j\)</span> represent the lower and upper thresholds separating injury category <span class="math inline">\(j\)</span>, <span class="math inline">\(\eta_i\)</span> represents the ordered probit linear predictor, and <span class="math inline">\(\beta_t\)</span> is the coefficient associated with the explanatory variable <span class="math inline">\(t\)</span>.</p>
+<p>For the lowest and highest injury categories, the corresponding boundaries are defined as <span class="math inline">\(\kappa_{-1}=-\infty\)</span> and <span class="math inline">\(\kappa_2=+\infty\)</span>, with <span class="math inline">\(\phi(-\infty)=\phi(+\infty)=0\)</span>.</p>
+<p>The expression illustrates how changes in an explanatory variable affect the probability of an injury category through differences in the normal density evaluated at the category thresholds.</p>
+<p>A positive coefficient generally decreases the probability of the lowest category and increases the probability of the highest category, while its effect on intermediate categories depends on the thresholds.</p>
+<section id="marginal-effects-in-the-ziop-model" class="level4" data-number="3.7.1">
+<h4 data-number="3.7.1" class="anchored" data-anchor-id="marginal-effects-in-the-ziop-model"><span class="header-section-number">3.7.1</span> Marginal effects in the ZIOP model</h4>
+<p>Following Harris and Zhao (2007), the overall marginal effect of the ZIOP model can be decomposed into two contributions:</p>
+<ol type="1">
+<li><strong>Binary probit contribution:</strong> The effect of an explanatory variable on the probability associated with the latent state-selection process.</li>
+<li><strong>Ordered probit contribution:</strong> The effect of an explanatory variable on the probability of an injury-severity category within the ordered process.</li>
+</ol>
+<p>These contributions are represented through the marginal effects of the binary probability <span class="math inline">\(p_i\)</span> and the conditional ordered probabilities <span class="math inline">\(q_{ij}\)</span>.</p>
+<p>The <strong>overall marginal effect</strong> combines the binary and ordered probit contributions to describe how a change in an explanatory variable influences the probability of observing a particular injury-severity category.</p>
+<p>The original research also considered a correlation parameter <span class="math inline">\(\rho\)</span>, representing the correlation between the disturbances in the binary probit and ordered probit processes. In the empirical specification used in this investigation, the disturbances were assumed independent, so <span class="math inline">\(\rho=0\)</span>.</p>
+</section>
+<section id="marginal-effects-used-in-the-empirical-analysis" class="level4" data-number="3.7.2">
+<h4 data-number="3.7.2" class="anchored" data-anchor-id="marginal-effects-used-in-the-empirical-analysis"><span class="header-section-number">3.7.2</span> Marginal effects used in the empirical analysis</h4>
+<p>Although the ZIOP model permits decomposition of the overall marginal effect into two components, <strong>this investigation focuses on the marginal effect of the ordered probit component</strong> to examine how changes in explanatory variables are associated with changes in the probabilities of slight, serious and fatal injuries.</p>
+<p>The marginal effects were evaluated at the mean of the explanatory variables.</p>
+<p>This approach was used to interpret how factors such as speed limits, vehicle characteristics and road conditions were associated with different injury-severity outcomes across the three lighting conditions.</p>
+</section>
+<section id="implementing-the-marginal-effects-in-r" class="level4" data-number="3.7.3">
+<h4 data-number="3.7.3" class="anchored" data-anchor-id="implementing-the-marginal-effects-in-r"><span class="header-section-number">3.7.3</span> Implementing the marginal effects in R</h4>
+<p>To support the empirical analysis, I developed an R function, <code>marginal_effect_ordered()</code>, to calculate marginal effects from a fitted ZIOP model.</p>
+<p>The implementation evaluates the marginal effects <strong>at the mean of the covariates</strong>, rather than averaging marginal effects separately over every observation.</p>
+<p>It extracts the estimated coefficients from the binary and ordered components, calculates their respective contributions, and combines them to obtain the overall marginal effect.</p>
+<p>The version below follows my original implementation, with adjustments to align the coefficient vectors, incorporate the binary intercept, and ensure the resulting calculations follow the mathematical expressions derived above.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>marginal_effect_ordered <span class="ot">&lt;-</span> <span class="cf">function</span>(ZIOP_MODEL, data, <span class="at">rho =</span> <span class="dv">0</span>) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Marginal effects at the mean of the covariates.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Requirements:</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># - The fitted ZIOP model contains coefficients$ordered</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   and coefficients$inflation.</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># - The first inflation coefficient is the binary intercept.</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># - The data contain numerical design columns matching</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   the coefficient names (including any dummy variables).</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># - A non-zero rho requires compatible estimates from</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   a correlated-error ZIOP specification.</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.numeric</span>(rho),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">length</span>(rho) <span class="sc">==</span> <span class="dv">1</span>L,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.finite</span>(rho),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abs</span>(rho) <span class="sc">&lt;</span> <span class="dv">1</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract the two sets of model coefficients.</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  ordered_coefs <span class="ot">&lt;-</span> ZIOP_MODEL<span class="sc">$</span>coefficients<span class="sc">$</span>ordered</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  inflation_coefs <span class="ot">&lt;-</span> ZIOP_MODEL<span class="sc">$</span>coefficients<span class="sc">$</span>inflation</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(<span class="fu">names</span>(ordered_coefs)) <span class="sc">||</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">is.null</span>(<span class="fu">names</span>(inflation_coefs))) {</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"Model coefficients must have variable names."</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standardize coefficient names.</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(ordered_coefs) <span class="ot">&lt;-</span> <span class="fu">sub</span>(</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"^ordered</span><span class="sc">\\</span><span class="st">."</span>, <span class="st">""</span>, <span class="fu">names</span>(ordered_coefs)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(inflation_coefs) <span class="ot">&lt;-</span> <span class="fu">sub</span>(</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"^inflation</span><span class="sc">\\</span><span class="st">."</span>, <span class="st">""</span>, <span class="fu">names</span>(inflation_coefs)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The first inflation coefficient is the intercept.</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  inflation_intercept <span class="ot">&lt;-</span> <span class="fu">unname</span>(inflation_coefs[<span class="dv">1</span>])</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  inflation_slopes <span class="ot">&lt;-</span> inflation_coefs[<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Identify variables appearing in each equation.</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  ordered_names <span class="ot">&lt;-</span> <span class="fu">names</span>(ordered_coefs)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  inflation_names <span class="ot">&lt;-</span> <span class="fu">names</span>(inflation_slopes)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  all_variables <span class="ot">&lt;-</span> <span class="fu">union</span>(</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    ordered_names, inflation_names</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that the supplied data match the model design.</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  missing_variables <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    all_variables, <span class="fu">names</span>(data)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(missing_variables) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Missing model design columns: "</span>,</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(missing_variables, <span class="at">collapse =</span> <span class="st">", "</span>)</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  is_numeric <span class="ot">&lt;-</span> <span class="fu">vapply</span>(</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    data[, all_variables, <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    is.numeric,</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">logical</span>(<span class="dv">1</span>)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">all</span>(is_numeric)) {</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>      <span class="st">"All model design columns must be numeric. "</span>,</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Encode factors using the fitted model design first."</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the joint mean of the covariates.</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>  x_mean <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    data[, ordered_names, <span class="at">drop =</span> <span class="cn">FALSE</span>]</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>  z_mean <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    data[, inflation_names, <span class="at">drop =</span> <span class="cn">FALSE</span>]</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ordered severity linear predictor.</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>  xb <span class="ot">&lt;-</span> <span class="fu">sum</span>(x_mean <span class="sc">*</span> ordered_coefs)</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Binary state linear predictor, including intercept.</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>  zY <span class="ot">&lt;-</span> inflation_intercept <span class="sc">+</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(z_mean <span class="sc">*</span> inflation_slopes)</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Align coefficients for shared and unique predictors.</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>  beta_star <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(all_variables)),</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    all_variables</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>  gamma_star <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(all_variables)),</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    all_variables</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>  beta_star[ordered_names] <span class="ot">&lt;-</span> ordered_coefs</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>  gamma_star[inflation_names] <span class="ot">&lt;-</span> inflation_slopes</span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract ordered threshold parameters.</span></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>  coefficient_table <span class="ot">&lt;-</span> <span class="fu">summary</span>(ZIOP_MODEL)<span class="sc">$</span>coefficients</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>  cut_rows <span class="ot">&lt;-</span> <span class="fu">grep</span>(</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>    <span class="st">"(^|/)cut[0-9]+"</span>,</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(coefficient_table)</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(cut_rows) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"Could not identify ordered cut-points."</span>)</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> <span class="fu">sort</span>(</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.numeric</span>(coefficient_table[cut_rows, <span class="st">"Estimate"</span>])</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>  response_variable <span class="ot">&lt;-</span> <span class="fu">length</span>(alpha) <span class="sc">+</span> <span class="dv">1</span>L</span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Lower and upper bounds for each ordered category.</span></span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>  lower_bounds <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, alpha) <span class="sc">-</span> xb</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>  upper_bounds <span class="ot">&lt;-</span> <span class="fu">c</span>(alpha, <span class="cn">Inf</span>) <span class="sc">-</span> xb</span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standard deviation of a conditional normal distribution.</span></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>  scale <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> rho<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Contribution from the binary state-selection process.</span></span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>  binary_prob <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(zY) <span class="sc">*</span> (</span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pnorm</span>(</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>      (upper_bounds <span class="sc">+</span> rho <span class="sc">*</span> zY) <span class="sc">/</span> scale</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">-</span></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pnorm</span>(</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>      (lower_bounds <span class="sc">+</span> rho <span class="sc">*</span> zY) <span class="sc">/</span> scale</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>  <span class="co"># For the lowest category, include the inflated-state</span></span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>  <span class="co"># probability derivative: -phi(zY).</span></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>  binary_prob[<span class="dv">1</span>] <span class="ot">&lt;-</span> binary_prob[<span class="dv">1</span>] <span class="sc">-</span> <span class="fu">dnorm</span>(zY)</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Helper for finite threshold boundary terms.</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>  ordered_boundary <span class="ot">&lt;-</span> <span class="cf">function</span>(bound) {</span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>    result <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(bound))</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>    finite <span class="ot">&lt;-</span> <span class="fu">is.finite</span>(bound)</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>    result[finite] <span class="ot">&lt;-</span> (</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pnorm</span>(</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>        (zY <span class="sc">+</span> rho <span class="sc">*</span> bound[finite]) <span class="sc">/</span> scale</span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">*</span></span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>      <span class="fu">dnorm</span>(bound[finite])</span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(result)</span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Contribution from the ordered severity process.</span></span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>  ordered_prob <span class="ot">&lt;-</span> (</span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ordered_boundary</span>(lower_bounds) <span class="sc">-</span></span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ordered_boundary</span>(upper_bounds)</span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the marginal-effect matrices.</span></span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a>  binary_probit_effect <span class="ot">&lt;-</span> <span class="fu">outer</span>(</span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>    gamma_star, binary_prob</span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>  ordered_probit_effect <span class="ot">&lt;-</span> <span class="fu">outer</span>(</span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>    beta_star, ordered_prob</span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Overall ZIOP marginal effect.</span></span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a>  overall_marginal_effect <span class="ot">&lt;-</span> (</span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a>    binary_probit_effect <span class="sc">+</span></span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a>    ordered_probit_effect</span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Name the severity categories.</span></span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (response_variable <span class="sc">==</span> <span class="dv">3</span>L) {</span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a>    severity_names <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Slight Injury"</span>,</span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Serious Injury"</span>,</span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Fatal Injury"</span></span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a>    severity_names <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Category "</span>, <span class="fu">seq_len</span>(response_variable) <span class="sc">-</span> <span class="dv">1</span>L</span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(binary_probit_effect) <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a>    all_variables, severity_names</span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(ordered_probit_effect) <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a>    all_variables, severity_names</span>
+<span id="cb2-201"><a href="#cb2-201" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-202"><a href="#cb2-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-203"><a href="#cb2-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(overall_marginal_effect) <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-204"><a href="#cb2-204" aria-hidden="true" tabindex="-1"></a>    all_variables, severity_names</span>
+<span id="cb2-205"><a href="#cb2-205" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-206"><a href="#cb2-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-207"><a href="#cb2-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(</span>
+<span id="cb2-208"><a href="#cb2-208" aria-hidden="true" tabindex="-1"></a>    <span class="at">Binary_Probit =</span> <span class="fu">as.data.frame</span>(binary_probit_effect),</span>
+<span id="cb2-209"><a href="#cb2-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ordered_Probit =</span> <span class="fu">as.data.frame</span>(ordered_probit_effect),</span>
+<span id="cb2-210"><a href="#cb2-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">Overall_effect =</span> <span class="fu">as.data.frame</span>(overall_marginal_effect)</span>
+<span id="cb2-211"><a href="#cb2-211" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb2-212"><a href="#cb2-212" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For the independent-error ZIOP model, the function can be called as follows:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate marginal effects with independent disturbances.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>effects <span class="ot">&lt;-</span> <span class="fu">marginal_effect_ordered</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ZIOP_MODEL =</span> ziop_two,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> prep_data,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">rho =</span> <span class="dv">0</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Binary-process contribution.</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>effects<span class="sc">$</span>Binary_Probit</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Ordered-process contribution.</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>effects<span class="sc">$</span>Ordered_Probit</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Overall marginal effects.</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>effects<span class="sc">$</span>Overall_effect</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted model results.</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ziop_two)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="interpretation-and-empirical-application" class="level4" data-number="3.7.4">
+<h4 data-number="3.7.4" class="anchored" data-anchor-id="interpretation-and-empirical-application"><span class="header-section-number">3.7.4</span> Interpretation and empirical application</h4>
+<p>An important distinction remains between the <strong>conditional ordered-probit marginal effects</strong> and the <strong>unconditional ZIOP marginal effects</strong>.</p>
+<p>The ordered component describes how predictors change the injury probabilities within the ordered state. The overall effect additionally accounts for changes in the probability of entering that state.</p>
+<p>In the original collision-severity analysis, the reported marginal effects were evaluated at the mean of the covariates, with particular attention to the ordered injury-severity component.</p>
+<p>These values are retained in the empirical findings section below.</p>
+<p>For binary explanatory variables such as a speed-limit indicator, the derivatives provide a local model-based approximation. A discrete comparison of predicted probabilities when the indicator changes from zero to one is generally a more direct interpretation.</p>
+<p>Finally, these marginal effects quantify statistical associations conditional on the fitted model. They should not be interpreted as causal effects of changing a road characteristic without additional assumptions and an appropriate causal research design.</p>
+</section>
+</section>
+</section>
+<section id="putting-the-model-to-work-collision-injury-severity" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="putting-the-model-to-work-collision-injury-severity"><span class="header-section-number">4</span> Putting the model to work: collision injury severity</h2>
+<p>The motivating example becomes more concrete with police-recorded road collisions. In this application the response is the <strong>highest recorded casualty injury severity</strong> for a selected single-vehicle collision, ordered as follows:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Model code</th>
+<th style="text-align: left;">Recorded severity</th>
+<th style="text-align: left;">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: left;">Slight injury</td>
+<td style="text-align: left;">Lowest <em>injury</em> category, not no injury</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>1</code></td>
+<td style="text-align: left;">Serious injury</td>
+<td style="text-align: left;">Intermediate category</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: left;">Fatal injury</td>
+<td style="text-align: left;">Highest category</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled" title="An essential data distinction">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>An essential data distinction
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The public STATS19 injury-collision data used here do <strong>not</strong> include collisions that caused no personal injury. The ‘zero’ in this analysis is a <strong>recoding of slight injury</strong>. Any argument about an actual no-injury collision state would be a different data problem and must not be inferred from these observations.</p>
+</div>
+</div>
+<section id="building-the-analytical-sample-from-stats19" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="building-the-analytical-sample-from-stats19"><span class="header-section-number">4.1</span> Building the analytical sample from STATS19</h3>
+<p>The underlying analysis linked police-recorded British <strong>collision, vehicle and casualty</strong> tables for <strong>2016–2021</strong>, using their shared collision identifier. The source-file counts were reported as:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">STATS19 source table</th>
+<th style="text-align: right;">Original observations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Collisions</td>
+<td style="text-align: right;">562,439</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Vehicles</td>
+<td style="text-align: right;">1,034,534</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Casualties</td>
+<td style="text-align: right;">728,541</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Sum across files before linkage</strong></td>
+<td style="text-align: right;"><strong>2,325,514</strong></td>
+</tr>
+</tbody>
+</table>
+<p>These counts represent <strong>records across three different source tables</strong>, not 2.3 million distinct collisions. To create a consistent collision-level response, the original processing restricted attention to <strong>single-vehicle</strong> events and used the highest casualty severity where multiple casualties were recorded.</p>
+<p>The analytical choices also included removing unknown/missing-coded values in selected predictors; excluding pedestrian/cyclist incidents, junction cases and certain vehicle classes with different injury mechanisms; applying a vehicle-age restriction; and checking strong predictor correlations (with a reported screening threshold around 0.70). After cleaning and restricting the sample, <strong>16,821 single-vehicle injury collisions</strong> remained.</p>
+<p>This is a consequential part of the statistical workflow: filtering changes the population to which the estimates apply. The results concern the <strong>selected sample of recorded injury collisions</strong>, not all traffic events or all collisions in Britain.</p>
+</section>
+<section id="why-an-inflated-category-was-plausible" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="why-an-inflated-category-was-plausible"><span class="header-section-number">4.2</span> Why an inflated category was plausible</h3>
+<p>The observed severity distribution in the selected sample was:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Severity</th>
+<th style="text-align: right;">Share</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Slight</td>
+<td style="text-align: right;"><strong>74.55%</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Serious</td>
+<td style="text-align: right;">23.95%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Fatal</td>
+<td style="text-align: right;">1.49%</td>
+</tr>
+</tbody>
+</table>
+<p><em>Percentages are reported as rounded in the source; they sum to 99.99%.</em></p>
+<div id="fig-severity" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-severity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/severity_distribution_original.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-severity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Figure 1. Original histogram of injury severity from the empirical analysis. This is the selected collision sample, not a model-generated simulation.
+</figcaption>
+</figure>
+</div>
+<p>The observed concentration motivates—but does not establish—the possibility that some slight injuries arise from a separate lowest-severity process. A ZIOP model tests whether assigning some of the observed slight-injury probability to a separate latent state leads to a useful statistical representation.</p>
+</section>
+<section id="lighting-as-the-empirical-comparison" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="lighting-as-the-empirical-comparison"><span class="header-section-number">4.3</span> Lighting as the empirical comparison</h3>
+<p>Rather than fitting a single model with lighting as only another predictor, the study estimated separate specifications for three groups:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lighting condition</th>
+<th style="text-align: right;">Model observations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Daylight</td>
+<td style="text-align: right;">10,712</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Darkness with streetlights lit</td>
+<td style="text-align: right;">5,015</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Complete darkness / no street lighting</td>
+<td style="text-align: right;">1,094</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Total</strong></td>
+<td style="text-align: right;"><strong>16,821</strong></td>
+</tr>
+</tbody>
+</table>
+<div id="fig-lighting" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lighting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/severity_by_lighting_original.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lighting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Figure 2. Original proportional severity distributions by lighting condition, extracted from the source research. These are descriptive sample shares, not fitted probabilities.
+</figcaption>
+</figure>
+</div>
+<p>The split makes it possible to examine whether conditional relationships differ across lighting environments. It does <strong>not</strong>, on its own, identify the causal effect of lighting: the collisions occurring in each environment may differ on many other observed and unobserved dimensions.</p>
+</section>
+<section id="estimation-and-model-comparison-workflow" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="estimation-and-model-comparison-workflow"><span class="header-section-number">4.4</span> Estimation and model-comparison workflow</h3>
+<p>The source analysis used <strong>R 4.2.2</strong>, an ordinary ordered probit fitted with a probit-link ordered-model package, ZIOP estimation using the <strong>ZMIOP</strong> package, and custom routines for marginal effects and model comparisons. Its documented workflow can be condensed as:</p>
+<ol type="1">
+<li>Merge the three STATS19 source tables on a collision identifier, construct a collision-level injury outcome, and enforce sample restrictions.</li>
+<li>Recode the lowest <strong>injury</strong> category as <code>0</code>; build interpretable indicator covariates and inspect large correlations between predictors.</li>
+<li>Partition the selected sample into <strong>daylight</strong>, <strong>lit darkness</strong>, and <strong>complete darkness</strong>.</li>
+<li>Screen and reduce candidate covariates using a backward significance-selection procedure, including the binary and ordered ZIOP equations; refit OP using the final covariates for within-subset comparisons.</li>
+<li>Estimate model-specific coefficients and fitted log-likelihoods; calculate marginal effects and tabulate <strong>AIC, BIC and Vuong statistics</strong>.</li>
+</ol>
+<p>This is a summary of the documented analysis, not executable re-estimation instructions. Exact replication of the 16,821 cases and coefficients requires the original variable transformations, exclusion rules, fitted-model code and the matching archived public data release. Significance-driven variable selection can also make nominal coefficient <span class="math inline">\(p\)</span>-values optimistic if its uncertainty is ignored.</p>
+<div id="fig-paths" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/ziop_process_original.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Figure 3. Two-path ZIOP model diagram from the original analysis. Read the branches using the consistent state convention adopted here: <span class="math inline">\(g_i=0\)</span> is the inflated minor-injury state; <span class="math inline">\(g_i=1\)</span> enters the ordered probit, which can produce slight, serious or fatal injury.
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="what-did-the-models-find" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="what-did-the-models-find"><span class="header-section-number">5</span> What did the models find?</h2>
+<section id="likelihood-and-information-criteria-across-lighting-conditions" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="likelihood-and-information-criteria-across-lighting-conditions"><span class="header-section-number">5.1</span> Likelihood and information criteria across lighting conditions</h3>
+<p>The core model comparisons are collected below. The values are transcribed from the original analysis rather than newly recomputed from the STATS19 records.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lighting</th>
+<th style="text-align: right;"><span class="math inline">\(n\)</span></th>
+<th style="text-align: right;">OP log-likelihood</th>
+<th style="text-align: right;">ZIOP log-likelihood</th>
+<th style="text-align: right;">OP AIC</th>
+<th style="text-align: right;">ZIOP AIC</th>
+<th style="text-align: right;">OP BIC</th>
+<th style="text-align: right;">ZIOP BIC</th>
+<th style="text-align: right;">Vuong: OP − ZIOP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Daylight</td>
+<td style="text-align: right;">10,712</td>
+<td style="text-align: right;">−6,374.56</td>
+<td style="text-align: right;">−6,339.40</td>
+<td style="text-align: right;">12,775.11</td>
+<td style="text-align: right;"><strong>12,728.80</strong></td>
+<td style="text-align: right;"><strong>12,869.74</strong></td>
+<td style="text-align: right;">12,910.78</td>
+<td style="text-align: right;">−4.19</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Streetlights lit</td>
+<td style="text-align: right;">5,015</td>
+<td style="text-align: right;">−3,248.26</td>
+<td style="text-align: right;">−3,232.75</td>
+<td style="text-align: right;">6,512.52</td>
+<td style="text-align: right;"><strong>6,495.50</strong></td>
+<td style="text-align: right;"><strong>6,564.68</strong></td>
+<td style="text-align: right;">6,593.30</td>
+<td style="text-align: right;">−2.72</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Complete darkness</td>
+<td style="text-align: right;">1,094</td>
+<td style="text-align: right;">−679.99</td>
+<td style="text-align: right;">−662.99</td>
+<td style="text-align: right;">1,383.99</td>
+<td style="text-align: right;"><strong>1,371.97</strong></td>
+<td style="text-align: right;"><strong>1,443.96</strong></td>
+<td style="text-align: right;">1,486.92</td>
+<td style="text-align: right;">−4.06</td>
+</tr>
+</tbody>
+</table>
+<p><em>OP = ordered probit. Lower AIC/BIC indicates the criterion’s preferred specification. The Vuong values are the <strong>reported</strong> statistics under the OP-minus-ZIOP sign convention.</em></p>
+<p>The original ZIOP analysis fitted better in sample by the maximised log-likelihood and <strong>AIC</strong> in all three conditions. But the <strong>BIC</strong> preferred the less complex ordered probit each time. That is an important finding rather than a nuisance to be omitted.</p>
+<p>For parameter count <span class="math inline">\(k\)</span> and maximised log-likelihood <span class="math inline">\(\hat\ell\)</span>, the criteria are</p>
+<p><span class="math display">\[
+\mathrm{AIC}=-2\hat\ell+2k,
+\qquad
+\mathrm{BIC}=-2\hat\ell+k\log n.
+\]</span></p>
+<p>The added penalty is <span class="math inline">\(2k\)</span> for AIC but <span class="math inline">\(k\log n\)</span> for BIC. With samples of this size, BIC can require a larger likelihood improvement to justify an additional parameter.</p>
+<p>The corresponding <em>differences</em> (OP value minus ZIOP value) were:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lighting</th>
+<th style="text-align: right;"><span class="math inline">\(\mathrm{AIC}_{OP}-\mathrm{AIC}_{ZIOP}\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(\mathrm{BIC}_{OP}-\mathrm{BIC}_{ZIOP}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Daylight</td>
+<td style="text-align: right;">+46.31</td>
+<td style="text-align: right;">−41.04</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Streetlights lit</td>
+<td style="text-align: right;">+17.02</td>
+<td style="text-align: right;">−28.62</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Complete darkness</td>
+<td style="text-align: right;">+12.02</td>
+<td style="text-align: right;">−42.96</td>
+</tr>
+</tbody>
+</table>
+<div id="fig-information-criteria" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-information-criteria-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/aic_bic_comparison_from_tables.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-information-criteria-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Figure 4. AIC and BIC differences recreated from the reported tables (not from refitting model data). Positive values favour ZIOP, while negative values favour ordinary ordered probit.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="what-changed-across-lighting-conditions" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="what-changed-across-lighting-conditions"><span class="header-section-number">5.2</span> What changed across lighting conditions?</h3>
+<p>The two equations in ZIOP allow an explanatory variable to have different associations with <em>state membership</em> and <em>severity within the ordered state</em>. A few source estimates make that distinction tangible:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lighting and variable</th>
+<th style="text-align: right;">Splitting-equation coefficient</th>
+<th style="text-align: right;">Ordered-equation coefficient</th>
+<th style="text-align: right;">Reported ordered-equation <span class="math inline">\(p\)</span>-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Daylight — speed-limit indicator <span class="math inline">\(&gt;40\)</span> mph</td>
+<td style="text-align: right;">+0.070</td>
+<td style="text-align: right;">+0.256</td>
+<td style="text-align: right;">0.049</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Daylight — skidding / overturning</td>
+<td style="text-align: right;">−0.286</td>
+<td style="text-align: right;">+0.482</td>
+<td style="text-align: right;">0.002</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Lit darkness — speed-limit indicator <span class="math inline">\(&gt;40\)</span> mph</td>
+<td style="text-align: right;">−0.551</td>
+<td style="text-align: right;">+0.333</td>
+<td style="text-align: right;">0.003</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Lit darkness — skidding / overturning</td>
+<td style="text-align: right;">+0.309</td>
+<td style="text-align: right;">−0.395</td>
+<td style="text-align: right;"><span class="math inline">\(&lt;0.001\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Complete darkness — skidding / overturning</td>
+<td style="text-align: right;">+0.471</td>
+<td style="text-align: right;">−0.701</td>
+<td style="text-align: right;">0.001</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Complete darkness — driver younger than 23</td>
+<td style="text-align: right;">−0.779</td>
+<td style="text-align: right;">+0.389</td>
+<td style="text-align: right;">0.081</td>
+</tr>
+</tbody>
+</table>
+<p>The splitting-equation coefficients above are reproduced as reported in the original analysis. <strong>Before interpreting their signs as increases or decreases in <span class="math inline">\(P(g_i=1)\)</span> under the convention used here</strong>, the original estimation package’s state coding should be checked; reversing a binary-state coding reverses the corresponding coefficient signs. The ordered-severity coefficients are separately interpretable on their latent scale.</p>
+<p>The sign changes for skidding and overturning are especially interesting: a positive <strong>ordered-severity</strong> estimate in daylight (+0.482) but negative estimates in both darkness conditions (−0.395 and −0.701). These are associations in <strong>separately fitted models</strong> after variable selection. They are not a formal statistical test of coefficient differences and should not be framed as evidence that light itself reverses injury severity.</p>
+</section>
+<section id="translating-coefficients-into-marginal-effects" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="translating-coefficients-into-marginal-effects"><span class="header-section-number">5.3</span> Translating coefficients into marginal effects</h3>
+<p>Consider the high-speed-limit indicator under <strong>darkness with functioning streetlights</strong>. The reported ZIOP coefficients were:</p>
+<ul>
+<li><strong>Splitting equation:</strong> −0.551 (reported <span class="math inline">\(p=0.004\)</span>)</li>
+<li><strong>Ordered severity equation:</strong> +0.333 (reported <span class="math inline">\(p=0.003\)</span>)</li>
+</ul>
+<p>In the source’s ordered-component marginal-effects table, the reported changes at the mean covariate values were:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Injury category</th>
+<th style="text-align: right;">Reported marginal probability change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Slight</td>
+<td style="text-align: right;">−9.742 percentage points</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Serious</td>
+<td style="text-align: right;">+7.975 percentage points</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Fatal</td>
+<td style="text-align: right;">+1.766 percentage points</td>
+</tr>
+</tbody>
+</table>
+<p>These three values sum to approximately zero (the tiny difference reflects rounding), as they should for category probabilities within one three-outcome distribution. What matters is the distinction between <strong>a coefficient on the latent severity index</strong> and <strong>a change in a category probability</strong>. The former is unitless on the latent probit scale; the latter is directly interpretable.</p>
+<p>For an additional daylight example, the source reported that the same <span class="math inline">\(&gt;40\)</span> mph indicator was associated with <strong>+0.873 percentage points</strong> for fatal injury in its ordered-component marginal-effects table. This illustrates why reading a coefficient as a probability change would be misleading.</p>
+<p>These are <strong>estimated model associations</strong>, not experimental estimates of what would happen if a speed limit were changed. Moreover, because the original report focused on ordered-state marginal effects, those numbers should not automatically be described as <strong>unconditional ZIOP marginal effects</strong> including process-membership changes.</p>
+</section>
+<section id="how-much-should-we-trust-the-vuong-comparison" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="how-much-should-we-trust-the-vuong-comparison"><span class="header-section-number">5.4</span> How much should we trust the Vuong comparison?</h3>
+<p>In the original comparison, the casewise log-likelihood difference for model OP versus ZIOP was constructed as</p>
+<p><span class="math display">\[
+m_i=\log f_{OP}(y_i\mid x_i)-\log f_{ZIOP}(y_i\mid x_i),
+\]</span></p>
+<p>and a conventional standardised form is</p>
+<p><span class="math display">\[
+V=\frac{\sqrt{n}\,\overline{m}}{s_m}.
+\]</span></p>
+<p>With OP subtracted first, a negative statistic points toward ZIOP. The source reported <strong>−4.19</strong>, <strong>−2.72</strong> and <strong>−4.06</strong>, respectively, for the three lighting conditions.</p>
+<p>But an important statistical complication deserves its own article. The ordinary normal-reference Vuong test assumes appropriate conditions for distinguishing two competing model families. ZIOP may approach ordinary ordered probit when the inflated-state probability shrinks toward zero, creating an <strong>overlap/boundary</strong> complication. Therefore, simply comparing these statistics against <span class="math inline">\(\pm1.96\)</span> may not provide a valid test of the particular models as fitted. The correct inferential treatment depends on the model relationship, identification and implementation.</p>
+<p>For now, the safest reading is that the <strong>reported casewise log-likelihood contrasts point toward ZIOP</strong>, while the usual significance interpretation needs a dedicated methodological check. That check is a natural topic for the companion piece on <strong>Vuong’s Test and Non-Nested Model Comparison</strong>.</p>
+<div class="callout callout-style-default callout-caution callout-titled" title="An audit issue in the original result tables">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>An audit issue in the original result tables
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The original OP tables list parameter counts <strong>14, 9 and 13</strong>, yet their reported OP log-likelihood and AIC values imply penalty counts close to <strong>13, 8 and 12</strong>. This one-parameter mismatch should be reconciled against the fitted R model objects before claiming exact numerical reproducibility. The ZIOP table values and the reported criterion scores above are preserved as written in the source.</p>
+</div>
+</div>
+</section>
+<section id="what-can-and-cannot-be-concluded" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="what-can-and-cannot-be-concluded"><span class="header-section-number">5.5</span> What can and cannot be concluded?</h3>
+<p>Taken together, the observed 74.55% slight-injury share and the estimated results are <strong>consistent with</strong> investigating a two-process ordered-response model. The richer model improves the <strong>reported in-sample likelihood and AIC</strong>. Yet BIC consistently favours a simpler model, and latent-state membership is not directly observable.</p>
+<p>Other important limitations remain:</p>
+<ul>
+<li><strong>Sample selection:</strong> STATS19 records police-reported injury collisions, not no-injury collisions or every unreported event. The particular cleaning rules further narrow the target population.</li>
+<li><strong>Measurement and classification:</strong> Injury severity and relevant covariates may be misclassified or missing; excluding unknown values may introduce selection bias.</li>
+<li><strong>Within-sample model selection:</strong> Significance-guided variable selection can affect coefficient stability and uncertainty.</li>
+<li><strong>Model identification and diagnostics:</strong> The two latent processes need not be uniquely determined by a large lowest-category share. Calibration and numerical stability deserve checks.</li>
+<li><strong>Interpretation of lighting:</strong> Three separately estimated subgroup models are not a randomised experiment in lighting conditions and do not establish causality.</li>
+<li><strong>Replication status:</strong> Figures and estimates here have been extracted or transcribed from the source research; they have <strong>not</strong> been independently rerun on a fresh download of STATS19.</li>
+</ul>
+</section>
+</section>
+<section id="closing-reflection" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="closing-reflection"><span class="header-section-number">6</span> Closing reflection</h2>
+<p>The most interesting feature of zero-inflated ordered probit is not that it can attach more probability to a crowded category. It is that it asks a different question: <strong>could the same recorded outcome come from different underlying statistical processes?</strong></p>
+<p>The collision example makes that question useful, but also exposes the cost of additional flexibility. A higher likelihood and lower AIC do not make a model self-evidently correct. The tension with BIC, uncertainty about the latent mechanisms, and the need for a careful Vuong comparison are precisely what make this an investigation rather than a straightforward declaration of a winning model.</p>
+<p>If I return to this analysis with the archived data and complete estimation scripts, the next experiment should test calibration and out-of-sample log loss, re-check the parameter counts, and examine the sensitivity of the inferred latent state to model specification and reporting decisions.</p>
+</section>
+<section id="sources-code-and-reproducibility" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="sources-code-and-reproducibility"><span class="header-section-number">7</span> Sources, code, and reproducibility</h2>
+<ul>
+<li><strong>Empirical basis:</strong> Previously completed analysis of Great Britain STATS19 collision, vehicle and casualty records (2016–2021). Figures 1–3 were extracted from the source research PDF. Figure 4 was <strong>recreated from the reported information-criterion table</strong>, not newly estimated.</li>
+<li><strong>Code:</strong> <a href="https://github.com/Ifeanyi-omeck/Collision_Severity_Model">Collision Severity Model — GitHub</a>. The repository is the intended location for the original modelling workflow; the concise R function above illustrates the likelihood mathematically but does not reproduce the original fitted coefficients by itself.</li>
+<li><strong>Public dataset:</strong> <a href="https://www.gov.uk/government/statistical-data-sets/road-safety-open-data">Department for Transport: Road Safety Open Data (STATS19)</a>.</li>
+<li>Harris, M. N., &amp; Zhao, X. (2007). <a href="https://doi.org/10.1016/j.jeconom.2007.01.002"><em>A zero-inflated ordered probit model, with an application to modelling tobacco consumption</em></a>. <em>Journal of Econometrics</em>, 141(2), 1073–1099.</li>
+<li>Vuong, Q. H. (1989). <em>Likelihood Ratio Tests for Model Selection and Non-Nested Hypotheses.</em> <em>Econometrica</em>, 57(2), 307–333.</li>
+</ul>
+<hr>
+<p><em>Published as an independent mathematical research note. Empirical numbers are attributed to the earlier STATS19 analysis; any additional interpretations and methodological cautions are made explicit here.</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
